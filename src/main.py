@@ -3,7 +3,6 @@ from services import setup_service
 from services import analysis_service
 
 def main():
-    print(os.getcwd())
     # Validate datasets and download to replace as needed
     print('=== VALIDATING DATASETS ===')
     setup_service.validateDatasets()
