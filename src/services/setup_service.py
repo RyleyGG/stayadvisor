@@ -20,11 +20,15 @@ def validateDatasets():
     bookingCom = True
 
     downloadDatasets(not dataFinitiValid, not tripAdvisorValid, not bookingCom)
+    print('All datasets have either been deemed valid or redownloaded')
 
 def downloadDatasets(dataFiniti = False, tripAdvisor = False, bookingCom = False):
     if not dataFiniti:
+        print('Datafiniti dataset invalid or missing. Downloading...')
         kaggle.api.dataset_download_files('datafiniti/hotel-reviews', path=f'{os.getcwd()}/data', unzip=True)
     if not tripAdvisor:
+        print('TripAdvisor dataset invalid or missing. Downloading...')
         kaggle.api.dataset_download_files('larxel/trip-advisor-hotel-reviews', path=f'{os.getcwd()}/data', unzip=True)
     if not bookingCom:
+        print('Booking.com dataset invalid or missing. Downloading...')
         kaggle.api.dataset_download_files('jiashenliu/515k-hotel-reviews-data-in-europe', path=f'{os.getcwd()}/data', unzip=True)
