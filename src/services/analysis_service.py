@@ -1,5 +1,11 @@
-def prefilterData():
+import pandas as pd
+import os
+import glob
+import json
+
+
+def prefilterData(dfArr):
     pass
 
-def homogenizeData():
+def homogenizeData(dfArr):
     pass

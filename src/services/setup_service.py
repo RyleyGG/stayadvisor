@@ -53,11 +53,14 @@ def validateDatasets():
     bookingComValid = validateDatasetFilesExist(bookingComFiles, 'booking.com')
     
     # Second, check schemas for files if all files for that dataset are present
-    dataFinitiValid = validateDatasetFileSchema(dataFinitiFiles, fileSchemas, 'Datafiniti')
-    bookingComValid = validateDatasetFileSchema(bookingComFiles, fileSchemas, 'booking.com')
+    dataFinitiValid = validateDatasetFileSchema(dataFinitiFiles, fileSchemas)
+    bookingComValid = validateDatasetFileSchema(bookingComFiles, fileSchemas)
 
     downloadDatasets(dataFinitiValid, bookingComValid)
-    print('Data validation complete')
+    print('DATA VALIDATION... COMPLETE')
+    print('INITIAL DATA INGEST... STARTED')
+    dfArr = ingestData(dataFinitiFiles.extend(bookingComFiles))
+    return dfArr
 
 def downloadDatasets(dataFiniti, bookingCom):
     if not dataFiniti:
@@ -74,7 +77,7 @@ def validateDatasetFilesExist(filenames, datasetName):
             return False
     return True
 
-def validateDatasetFileSchema(filenames, schemaObj, datasetName):
+def validateDatasetFileSchema(filenames, schemaObj):
     for filename in filenames:
         validCols = schemaObj[filename]
         fileDf = pd.read_csv(f'./data/{filename}.csv')
@@ -88,3 +91,9 @@ def validateDatasetFileSchema(filenames, schemaObj, datasetName):
                 print(f'Expected column "{col}" not found in file {filename}.csv. Marking for redownload...')
                 return False
         return True
+    
+def ingestData(filenames):
+    returnObj = []
+    for filename in filenames:
+        returnObj.append(pd.read_csv(f'./data/{filename}.csv'))
+    return returnObj
