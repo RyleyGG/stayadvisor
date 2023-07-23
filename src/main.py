@@ -17,11 +17,11 @@ def main():
 
     # Homogenize data to get only relevant information
     print('=== HOMOGENIZING DATA ===')
-    combinedArr = analysis_service.homogenizeData(dfDict)
+    combinedDf = analysis_service.homogenizeData(dfDict)
 
     # Once data has been collected into one data object, remove unwanted rows
     print('=== PREFILTERING DATA ===')
-    combinedArr = analysis_service.prefilterData(combinedArr)
+    combinedDf = analysis_service.prefilterData(combinedDf)
 
 if __name__ == '__main__':
     main()
