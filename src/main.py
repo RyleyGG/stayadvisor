@@ -3,17 +3,25 @@ from services import setup_service
 from services import analysis_service
 
 def main():
+    # Validate Kaggle connection
+    print('=== VALIDATING KAGGLE CREDENTIALS ===')
+    setup_service.validateKaggle()
+
+    # Validating existence of other required files
+    print('=== VALIDATING SCHEMA REFERENCES ===')
+    setup_service.validateSchemaFiles()
+
     # Validate datasets and download to replace as needed
     print('=== VALIDATING DATASETS ===')
-    dfArr = setup_service.validateDatasets()
+    dfDict = setup_service.validateDatasets()
 
-    # Prefilter data to remove extraneous information
-    print('=== PREFILTERING DATA ===')
-    dfArr = analysis_service.prefilterData(dfArr)
-
-    # Homogenize and combine data from various sources into same format
+    # Homogenize data to get only relevant information
     print('=== HOMOGENIZING DATA ===')
-    combinedArr = analysis_service.homogenizeData(dfArr)
+    combinedArr = analysis_service.homogenizeData(dfDict)
+
+    # Once data has been collected into one data object, remove unwanted rows
+    print('=== PREFILTERING DATA ===')
+    combinedArr = analysis_service.prefilterData(combinedArr)
 
 if __name__ == '__main__':
     main()

@@ -16,29 +16,30 @@ def validateKaggle():
               token credentials correctly. Please review the instructions at https://www.kaggle.com/docs/api and re-run this program.')
         print(f'ERROR MSG: {str(e)}') # Provide error msg in catch-all incase the error is not related to token
 
+def validateSchemaFiles():
+    # Ensuring schema file is present and has keys with 1:1 match with files in 
+    if not glob.glob('file_schemas.json'):
+        print('File schema reference... MISSING')
+        print('Redownload from repository. Exiting...')
+        exit(1)
+
 def validateDatasets():
     dataFinitiValid = True
     bookingComValid = True
 
-    # Ensuring schema file is present and has keys with 1:1 match with files in 
-    fileSchemas = None
-    if not glob.glob('file_schemas.json'):
-        print('Schema file... MISSING')
-        print('Redownload from repository. Exiting...')
-        exit(1)
-    else:
-        fileSchemas = json.load(open('./file_schemas.json'))
-        filenames = glob.glob('./data/*.csv')
-        filenames = [filename.split('./data\\')[1].split('.csv')[0] for filename in filenames]
-        for filename in filenames:
-            if filename not in fileSchemas.keys():
-                print(f'Key mismatch between schema file and data directory: {filename}. Exiting...')
-                exit(1)
+    # Ensuring schema file is present and has keys with 1:1 match with files in
+    fileSchemas = json.load(open('./file_schemas.json'))
+    filenames = glob.glob('./data/*.csv')
+    filenames = [filename.split('./data\\')[1].split('.csv')[0] for filename in filenames]
+    for filename in filenames:
+        if filename not in fileSchemas.keys():
+            print(f'Key mismatch between schema file and data directory: {filename}. Exiting...')
+            exit(1)
 
-        for schemaKey in fileSchemas.keys():
-            if schemaKey not in filenames:
-                print(f'Key mismatch between schema file and data directory: {schemaKey}. Exiting...')
-                exit(1)
+    for schemaKey in fileSchemas.keys():
+        if schemaKey not in filenames:
+            print(f'Key mismatch between schema file and data directory: {schemaKey}. Exiting...')
+            exit(1)
 
     # First, ensure files from both datasets are present
     dataFinitiFiles = [
@@ -59,8 +60,13 @@ def validateDatasets():
     downloadDatasets(dataFinitiValid, bookingComValid)
     print('DATA VALIDATION... COMPLETE')
     print('INITIAL DATA INGEST... STARTED')
-    dfArr = ingestData(dataFinitiFiles.extend(bookingComFiles))
-    return dfArr
+    
+    allFilenames = []
+    allFilenames.extend(dataFinitiFiles)
+    allFilenames.extend(bookingComFiles)
+    dfDict = ingestData(allFilenames)
+    print('INITIAL DATA INGEST... COMPLETE')
+    return dfDict
 
 def downloadDatasets(dataFiniti, bookingCom):
     if not dataFiniti:
@@ -93,7 +99,7 @@ def validateDatasetFileSchema(filenames, schemaObj):
         return True
     
 def ingestData(filenames):
-    returnObj = []
+    returnObj = {}
     for filename in filenames:
-        returnObj.append(pd.read_csv(f'./data/{filename}.csv'))
+        returnObj[filename] = pd.read_csv(f'./data/{filename}.csv')
     return returnObj
