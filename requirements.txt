@@ -2,4 +2,5 @@ pandas
 numpy
 kaggle
 scikit-learn
-nltk
+keras
+tensorflow

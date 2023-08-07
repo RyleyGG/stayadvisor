@@ -30,8 +30,11 @@ def main():
     print('=== PREFILTERING DATA ===')
     combinedDf = analysis_service.prefilterData(combinedDf)
 
-    print('=== RUNNING TFIDF MODEL ===')
-    analysis_service.tfidfApproach(combinedDf)
+    # print('=== RUNNING TFIDF MODEL ===')
+    # analysis_service.tfidf(combinedDf)
+
+    print('=== RUNNING DEEP LEARNING MODEL ===')
+    analysis_service.feedForwardNet(combinedDf)
 
 if __name__ == '__main__':
     main()
