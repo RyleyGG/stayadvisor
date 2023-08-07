@@ -3,6 +3,7 @@ import kaggle
 import os
 import glob
 import json
+from services.config_service import config
 
 def validateKaggle():
     try:
@@ -17,8 +18,8 @@ def validateKaggle():
         print(f'ERROR MSG: {str(e)}') # Provide error msg in catch-all incase the error is not related to token
 
 def validateSchemaFiles():
-    # Ensuring schema file is present and has keys with 1:1 match with files in 
-    if not glob.glob('file_schemas.json'):
+    # Ensuring schema file is present and has keys with 1:1 match with files in data directory
+    if not glob.glob(f'{config.cwd}/file_schemas.json'):
         print('File schema reference... MISSING')
         print('Redownload from repository. Exiting...')
         exit(1)
@@ -28,9 +29,10 @@ def validateDatasets():
     bookingComValid = True
 
     # Ensuring schema file is present and has keys with 1:1 match with files in
-    fileSchemas = json.load(open('./file_schemas.json'))
-    filenames = glob.glob('./data/*.csv')
-    filenames = [filename.split('./data\\')[1].split('.csv')[0] for filename in filenames]
+    fileSchemas = json.load(open(f'{config.cwd}/file_schemas.json'))
+    filenames = glob.glob(f'{config.cwd}/data/*.csv')
+    filenames = [filename.replace('\\', '/') for filename in filenames]
+    filenames = [filename.split(f'{config.cwd}/data/')[1].split('.csv')[0] for filename in filenames]
     for filename in filenames:
         if filename not in fileSchemas.keys():
             print(f'Key mismatch between schema file and data directory: {filename}. Exiting...')

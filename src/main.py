@@ -2,6 +2,7 @@ import os
 from services import setup_service
 from services import analysis_service
 
+
 def main():
     # Validate Kaggle connection
     print('=== VALIDATING KAGGLE CREDENTIALS ===')
