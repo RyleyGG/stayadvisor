@@ -80,7 +80,7 @@ def downloadDatasets(dataFiniti, bookingCom):
 
 def validateDatasetFilesExist(filenames, datasetName):
     for filename in filenames:
-        if not glob.glob(f'./data/{filename}.csv'):
+        if not glob.glob(f'{config.cwd}/data/{filename}.csv'):
             print(f'{datasetName}... MISSING FILES')
             return False
     return True
@@ -88,7 +88,7 @@ def validateDatasetFilesExist(filenames, datasetName):
 def validateDatasetFileSchema(filenames, schemaObj):
     for filename in filenames:
         validCols = schemaObj[filename]
-        fileDf = pd.read_csv(f'./data/{filename}.csv')
+        fileDf = pd.read_csv(f'{config.cwd}/data/{filename}.csv')
         for col in fileDf.columns:
             if col not in validCols:
                 print(f'Unexpected column "{col}" in file {filename}.csv. Marking for redownload...')
@@ -103,5 +103,5 @@ def validateDatasetFileSchema(filenames, schemaObj):
 def ingestData(filenames):
     returnObj = {}
     for filename in filenames:
-        returnObj[filename] = pd.read_csv(f'./data/{filename}.csv')
+        returnObj[filename] = pd.read_csv(f'{config.cwd}/data/{filename}.csv')
     return returnObj
