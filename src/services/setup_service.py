@@ -35,12 +35,12 @@ def validateDatasets():
     filenames = [filename.split(f'{config.cwd}/data/')[1].split('.csv')[0] for filename in filenames]
     for filename in filenames:
         if filename not in fileSchemas.keys():
-            print(f'Key mismatch between schema file and data directory: {filename}. Exiting...')
+            print(f'Entry for file {filename} not found in schema file. Exiting...')
             exit(1)
 
     for schemaKey in fileSchemas.keys():
         if schemaKey not in filenames:
-            print(f'Key mismatch between schema file and data directory: {schemaKey}. Exiting...')
+            print(f'Expected file {schemaKey} missing from data files. Exiting...')
             exit(1)
 
     # First, ensure files from both datasets are present
