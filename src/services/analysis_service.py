@@ -1,7 +1,11 @@
 import pandas as pd
-import os
-import glob
-import json
+import numpy as np
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.svm import LinearSVR
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.pipeline import Pipeline
 
 
 def homogenizeData(dfDict):
@@ -45,6 +49,9 @@ def prefilterData(combinedDf):
 
     print('(removing entries with short review text)')
     combinedDf = combinedDf[combinedDf['Review Text'].apply(len) > 2]
+
+    print('(removing entries with empty review rating)')
+    combinedDf = combinedDf.dropna(subset=['Review Rating'])
 
     print('(normalizing review scores)')
     combinedDf = combinedDf.apply(normalizeReviewScores, result_type='expand', axis=1)
@@ -103,3 +110,47 @@ def datafinitiHomogenizeHelper(df):
         'Data Source'
         ]]
     return curDf
+
+def tfidfApproach(df):
+    # Take a random subset of the data for hyperparameter tuning
+    XTrain, XTest, YTrain, YTest = train_test_split(df['Review Text'], df['Review Rating'], test_size=0.2, random_state=42)
+
+    # Create a pipeline with TF-IDF vectorizer and LinearSVR
+    # TF-IDF vectorizer quantifies the text & LinearSVR is used to regress on these quantities
+    pipeline = Pipeline([
+        ('tfidf', TfidfVectorizer(stop_words='english')),
+        ('svr', LinearSVR())
+    ])
+
+    # Hyperparameters
+    ###
+    # TF-IDF converts words and/or n-grams (combinations of adjacent words) into a numerical form.
+    # The Max Features hyperparameter only considers the top 5000 most frequent words and/or n-grams
+    # An n-gram range of (1, 2) means that both unigrams and bigrams are considered
+    # svr__C refers to regularization strength in the SVR model.
+    ### 
+    paramGrid = {
+        'tfidf__max_features': [5000],
+        'tfidf__ngram_range': [(1, 2)],
+        'svr__C': [0.1, 1, 10]
+    }
+
+    # Grid search to tune hyperparameters
+    gridSearch = GridSearchCV(pipeline, paramGrid, cv=3, verbose=3, n_jobs=-1)
+    gridSearch.fit(XTrain, YTrain)
+
+    # Prediction
+    YPredSVR = gridSearch.predict(XTest)
+
+    # Evaluation
+    errorSVR = mean_squared_error(YTest, YPredSVR)
+    print(f'Mean Squared Error using LinearSVR: {errorSVR}')
+
+    # Example usage
+    reviews = ["The hotel was clean, and the staff was friendly. Great experience!",
+               "Absolutely awful. The room was extremely dirty and the staff were rude. Terrible!",
+               "It was alright. Not great, but not bad either."]
+
+    for review in reviews:
+        predicted_rating = gridSearch.predict([review])
+        print(f"Predicted Rating: {predicted_rating[0]}")
