@@ -38,11 +38,6 @@ def validateDatasets():
             print(f'Entry for file {filename} not found in schema file. Exiting...')
             exit(1)
 
-    for schemaKey in fileSchemas.keys():
-        if schemaKey not in filenames:
-            print(f'Expected file {schemaKey} missing from data files. Exiting...')
-            exit(1)
-
     # First, ensure files from both datasets are present
     dataFinitiFiles = [
         '7282_1',
@@ -54,12 +49,21 @@ def validateDatasets():
     ]
     dataFinitiValid = validateDatasetFilesExist(dataFinitiFiles, 'Datafiniti')
     bookingComValid = validateDatasetFilesExist(bookingComFiles, 'booking.com')
+    downloadDatasets(dataFinitiValid, bookingComValid)
     
     # Second, check schemas for files if all files for that dataset are present
     dataFinitiValid = validateDatasetFileSchema(dataFinitiFiles, fileSchemas)
     bookingComValid = validateDatasetFileSchema(bookingComFiles, fileSchemas)
-
     downloadDatasets(dataFinitiValid, bookingComValid)
+
+    # Final validity check
+    dataFinitiValid = validateDatasetFileSchema(dataFinitiFiles, fileSchemas)
+    bookingComValid = validateDatasetFileSchema(bookingComFiles, fileSchemas)
+    if not dataFinitiValid or not bookingComValid:
+        print('Files were redownloaded, but issues were still present during schema check procedure')
+        print('It is possible the script is expecting an older version of the datasets. Exiting...')
+        exit(1)
+
     print('DATA VALIDATION... COMPLETE')
     print('INITIAL DATA INGEST... STARTED')
     
@@ -71,12 +75,16 @@ def validateDatasets():
     return dfDict
 
 def downloadDatasets(dataFiniti, bookingCom):
+    if not config.kaggleAuth and (not dataFiniti or not bookingCom):
+        print('There were issues with the downloaded files, but Kaggle authentication is disabled')
+        print('Unable to remedy issues. Exiting...')
+        exit(1)
     if not dataFiniti:
         print('Datafiniti dataset invalid or missing. Downloading...')
-        kaggle.api.dataset_download_files('datafiniti/hotel-reviews', path=f'{os.getcwd()}/data', unzip=True)
+        kaggle.api.dataset_download_files('datafiniti/hotel-reviews', path=f'{config.cwd}/data', unzip=True)
     if not bookingCom:
         print('Booking.com dataset invalid or missing. Downloading...')
-        kaggle.api.dataset_download_files('jiashenliu/515k-hotel-reviews-data-in-europe', path=f'{os.getcwd()}/data', unzip=True)
+        kaggle.api.dataset_download_files('jiashenliu/515k-hotel-reviews-data-in-europe', path=f'{config.cwd}/data', unzip=True)
 
 def validateDatasetFilesExist(filenames, datasetName):
     for filename in filenames:

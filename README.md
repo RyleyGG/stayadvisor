@@ -29,5 +29,5 @@ Taking in a large amount of hotel review data - over half a million unique revie
         ```
     2. If not authenticated with Kaggle, run:
         ```
-        python -m main --noauth
+        python -m main -noauth
         ```

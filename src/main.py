@@ -1,12 +1,18 @@
-import os
+import argparse
 from services import setup_service
 from services import analysis_service
-
+from services.config_service import config
 
 def main():
-    # Validate Kaggle connection
-    print('=== VALIDATING KAGGLE CREDENTIALS ===')
-    setup_service.validateKaggle()
+    argParser = argparse.ArgumentParser()
+    argParser.add_argument('-noauth', action='store_true')
+    args = argParser.parse_args()
+    config.kaggleAuth = not args.noauth
+
+    if config.kaggleAuth:
+        # Validate Kaggle connection
+        print('=== VALIDATING KAGGLE CREDENTIALS ===')
+        setup_service.validateKaggle()
 
     # Validating existence of other required files
     print('=== VALIDATING SCHEMA REFERENCES ===')
